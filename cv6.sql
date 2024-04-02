@@ -88,3 +88,26 @@ select case when count(login)=count(distinct login) THEN 'yes' ELSE 'no' END fro
 select login, decode (count(*),1,'ano','ne')
 from (select lower(substr(jmeno, 1,1) || translate(substr(prijmeni,1,5),'ÁáÉéÍíÓóÚúÜü??ÈèÏïÌìÒòØøŠšŽž','AaEeIiOoUuUuNnCcDdEeNnRrSsTtZz'))login from zamestnanci)
 group by login;
+
+//Vypište název producenta a jeho telefonní èíslo, pokud nemá uveden telefon, vypište email. Pokud nemá ani e-mail, vypište kontaktní osobu. Pokud nemá zaznamenánu ani tu, vypište: „Nemá uveden žádný kontakt.“ Tento sloupec pojmenujte kontakt.
+select nazev, coalesce(telefon,email,kontaktni_osoba,'Nemá uveden žádný kontakt') from producenti;
+
+//Vypište jméno, pøíjmení, poèet dnù v zamìstnání a název jejich pracovní pozice u zamìstnancù, kteøí k 1. 1. 2008 byli již minimálnì pùl roku zamìstnáni a seøaïte je podle doby pracovního pomìru od nejdéle pracujícího.
+select jmeno, prijmeni, trunc(sysdate - datum_nastupu), datum_nastupu from zamestnanci where datum_nastupu - to_date('01-JAN-08', 'dd-MON-yy') > 365/2 order by datum_nastupu;
+
+//Vypište jméno a pøíjmení zamìstnancù a pøíjmení jejich vedoucích, jejichž plat je nad prùmìrný. Pokud nemají vedoucího vypište „bez nadøízeného“. Zamìstnance seøaïte podle pøíjmení a jména.
+select z.jmeno, z.prijmeni, z.plat, v.prijmeni as vedouci from zamestnanci z 
+left join zamestnanci v on (z.nadrizeny = v.id_zamestnanci)
+where z.plat > (select avg(plat) from zamestnanci);
+
+// Vypište úè(et/ty) od prodej(e/ù), kter(ý/é) byl(y) provedeny 9. února 2014 na poboèce v Bøeclavi a jejich celková cena byla mezi 5000 a 7500.
+select id_prodeje, nvl(produkty.nazev,'CELKEM') as polozka, nabidky.cena as cena, pocet_kusu, cena*pocet_kusu as celkem from prodeje
+join pobocky using(id_pobocky)
+join polozky_prodeje using(id_prodeje)
+join produkty using(id_produkty)
+join nabidky using(id_produkty)
+join oddeleniprodejny using(id_oddeleni, id_pobocky)
+where pobocky.nazev = 'Bøeclav' and cas_prodeje like ('09-FEB-14%') and cena_celkem between 5000 and 7500
+and trunc(cas_prodeje) between platnost_od and platnost_do
+group by grouping sets ((id_prodeje),(id_prodeje, produkty.nazev, nabidky.cena, pocet_kusu))
+order by id_prodeje;
