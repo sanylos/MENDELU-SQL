@@ -1,0 +1,86 @@
+ZAMESTNANCI:
+Name               Null?    Type         
+------------------ -------- ------------ 
+ID_ZAMESTNANCI     NOT NULL NUMBER       
+JMENO              NOT NULL VARCHAR2(30) 
+PRIJMENI           NOT NULL VARCHAR2(30) 
+ID_ODDELENI        NOT NULL NUMBER       
+PLAT                        NUMBER       
+NADRIZENY                   NUMBER       
+ID_PRACOVNI_POZICE          NUMBER       
+DATUM_NASTUPU      NOT NULL DATE 
+
+ODDLENI:
+Name        Null?    Type         
+----------- -------- ------------ 
+ID_ODDELENI NOT NULL NUMBER       
+NAZEV       NOT NULL VARCHAR2(50) 
+VEDOUCI     NOT NULL NUMBER       
+ID_POBOCKY  NOT NULL NUMBER  
+
+POBOCKY:
+Name             Null?    Type          
+---------------- -------- ------------- 
+ID_POBOCKY       NOT NULL NUMBER        
+NAZEV            NOT NULL VARCHAR2(50)  
+VEDOUCI          NOT NULL NUMBER        
+MESTO            NOT NULL VARCHAR2(50)  
+ULICE                     VARCHAR2(100) 
+CISLO_ORIENTACNI          NUMBER        
+PSC              NOT NULL NUMBER   
+
+PRACOVNI_POZICE:
+Name               Null?    Type         
+------------------ -------- ------------ 
+ID_PRACOVNI_POZICE NOT NULL NUMBER       
+NAZEV              NOT NULL VARCHAR2(50) 
+MIN_PLAT           NOT NULL NUMBER       
+MAX_PLAT           NOT NULL NUMBER    
+
+ODDELENI:
+Name        Null?    Type         
+----------- -------- ------------ 
+ID_ODDELENI NOT NULL NUMBER       
+ID_PRODUKTY NOT NULL NUMBER       
+CENA        NOT NULL BINARY_FLOAT 
+PLATNOST_OD NOT NULL DATE         
+PLATNOST_DO NOT NULL DATE         
+
+PRODEJE:
+Name        Null?    Type         
+----------- -------- ------------ 
+ID_PRODEJE  NOT NULL NUMBER       
+ID_POBOCKY  NOT NULL NUMBER       
+CAS_PRODEJE NOT NULL TIMESTAMP(6) 
+CENA_CELKEM NOT NULL BINARY_FLOAT 
+
+SVETADILY:
+Name         Null?    Type              
+------------ -------- ----------------- 
+ID_SVETADILY NOT NULL NUMBER            
+NAZEV        NOT NULL VARCHAR2(15 CHAR) 
+Name         Null?    Type      
+
+ZEME:
+------------ -------- ----------------- 
+ID_ZEME      NOT NULL NUMBER            
+NAZEV        NOT NULL VARCHAR2(30 CHAR) 
+ID_SVETADILY NOT NULL NUMBER     
+
+PRODUKTY:
+Name            Null?    Type          
+--------------- -------- ------------- 
+ID_PRODUKTY     NOT NULL NUMBER        
+NAZEV           NOT NULL VARCHAR2(100) 
+ID_PRODUCENTI   NOT NULL NUMBER        
+ID_ZEME         NOT NULL NUMBER        
+PORIZOVACI_CENA NOT NULL BINARY_FLOAT  
+
+PRODUCENTI:
+Name            Null?    Type          
+--------------- -------- ------------- 
+ID_PRODUCENTI   NOT NULL NUMBER        
+NAZEV           NOT NULL VARCHAR2(50)  
+TELEFON                  VARCHAR2(15)  
+EMAIL           NOT NULL VARCHAR2(100) 
+KONTAKTNI_OSOBA NOT NULL VARCHAR2(100) 
