@@ -1,0 +1,86 @@
+//Kolik sudů piva bylo celkem vystaveno v restauraci Labská Bašta?
+SELECT SUM(pocet_kusu) AS celkovy_pocet_sudů
+FROM p3_vystav
+JOIN p3_restaurace ON p3_vystav.id_restaurace = p3_restaurace.id_restaurace
+WHERE p3_restaurace.nazev = 'Labská Bašta';
+
+//Pro jednotlivé kraje určete pivovar z daného kraje, který vystavil největší objem piva.
+WITH TotalVolumePerBrewery AS (
+    SELECT 
+        K.ID_KRAJE,
+        K.NAZEV AS KRAJ,
+        PIV.ID_PIVOVARU,
+        PIV.NAZEV AS PIVOVAR,
+        SUM(V.POCET_KUSU * TOB.OBJEM_V_LITRECH) AS CELKOVY_OBJEM
+    FROM 
+        VYSTAV V
+    JOIN PIVA PI ON V.ID_PIVA = PI.ID_PIVA
+    JOIN PIVOVARY PIV ON PI.ID_PIVOVARU = PIV.ID_PIVOVARU
+    JOIN ADRESY A ON PIV.ID_ADRESY = A.ID_ADRESY
+    JOIN SMEROVACI_CISLA SC ON A.PSC = SC.PSC
+    JOIN OBCE O ON SC.ID_OBCE = O.ID_OBCE
+    JOIN KRAJE K ON O.ID_KRAJE = K.ID_KRAJE
+    JOIN TYPY_OBALU TOB ON V.ID_TYPU_OBALU = TOB.ID_TYPU_OBALU
+    GROUP BY 
+        K.ID_KRAJE,
+        K.NAZEV,
+        PIV.ID_PIVOVARU,
+        PIV.NAZEV
+),
+MaxVolumePerRegion AS (
+    SELECT 
+        ID_KRAJE,
+        MAX(CELKOVY_OBJEM) AS MAX_OBJEM
+    FROM 
+        TotalVolumePerBrewery
+    GROUP BY 
+        ID_KRAJE
+)
+SELECT 
+    TV.KRAJ,
+    TV.PIVOVAR,
+    TV.CELKOVY_OBJEM
+FROM 
+    TotalVolumePerBrewery TV
+JOIN 
+    MaxVolumePerRegion MR ON TV.ID_KRAJE = MR.ID_KRAJE AND TV.CELKOVY_OBJEM = MR.MAX_OBJEM;
+
+//Pro jednotlivé kraje určete dny s nejvyšším vystaveným objemem.
+WITH DailyVolumePerRegion AS (
+    SELECT 
+        K.ID_KRAJE,
+        K.NAZEV AS KRAJ,
+        TRUNC(V.CAS_VYSTAVENI) AS DEN,
+        SUM(V.POCET_KUSU * TOB.OBJEM_V_LITRECH) AS CELKOVY_OBJEM
+    FROM 
+        VYSTAV V
+    JOIN PIVA PI ON V.ID_PIVA = PI.ID_PIVA
+    JOIN PIVOVARY PIV ON PI.ID_PIVOVARU = PIV.ID_PIVOVARU
+    JOIN ADRESY A ON PIV.ID_ADRESY = A.ID_ADRESY
+    JOIN SMEROVACI_CISLA SC ON A.PSC = SC.PSC
+    JOIN OBCE O ON SC.ID_OBCE = O.ID_OBCE
+    JOIN KRAJE K ON O.ID_KRAJE = K.ID_KRAJE
+    JOIN TYPY_OBALU TOB ON V.ID_TYPU_OBALU = TOB.ID_TYPU_OBALU
+    GROUP BY 
+        K.ID_KRAJE,
+        K.NAZEV,
+        TRUNC(V.CAS_VYSTAVENI)
+),
+MaxVolumePerDayPerRegion AS (
+    SELECT 
+        ID_KRAJE,
+        MAX(CELKOVY_OBJEM) AS MAX_OBJEM
+    FROM 
+        DailyVolumePerRegion
+    GROUP BY 
+        ID_KRAJE
+)
+SELECT 
+    DVR.KRAJ,
+    DVR.DEN,
+    DVR.CELKOVY_OBJEM
+FROM 
+    DailyVolumePerRegion DVR
+JOIN 
+    MaxVolumePerDayPerRegion MVDPR ON DVR.ID_KRAJE = MVDPR.ID_KRAJE AND DVR.CELKOVY_OBJEM = MVDPR.MAX_OBJEM;
+
