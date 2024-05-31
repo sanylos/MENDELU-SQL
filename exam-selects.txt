@@ -84,3 +84,45 @@ FROM
 JOIN 
     MaxVolumePerDayPerRegion MVDPR ON DVR.ID_KRAJE = MVDPR.ID_KRAJE AND DVR.CELKOVY_OBJEM = MVDPR.MAX_OBJEM;
 
+//Pro jednotlivé kraje určete pivovar z daného kraje, který vystavil největší objem piva
+WITH TotalVolumePerBrewery AS (
+    SELECT 
+        KR.ID_KRAJE,
+        KR.NAZEV AS KRAJ,
+        PIV.ID_PIVOVARU,
+        PIV.NAZEV AS PIVOVAR,
+        SUM(V.POCET_KUSU * TOB.OBJEM_V_LITRECH) AS CELKOVY_OBJEM
+    FROM 
+        VYSTAV V
+    JOIN PIVA PI ON V.ID_PIVA = PI.ID_PIVA
+    JOIN PIVOVARY PIV ON PI.ID_PIVOVARU = PIV.ID_PIVOVARU
+    JOIN ADRESY A ON PIV.ID_ADRESY = A.ID_ADRESY
+    JOIN SMEROVACI_CISLA SC ON A.PSC = SC.PSC
+    JOIN OBCE O ON SC.ID_OBCE = O.ID_OBCE
+    JOIN KRAJE KR ON O.ID_KRAJE = KR.ID_KRAJE
+    JOIN TYPY_OBALU TOB ON V.ID_TYPU_OBALU = TOB.ID_TYPU_OBALU
+    GROUP BY 
+        KR.ID_KRAJE,
+        KR.NAZEV,
+        PIV.ID_PIVOVARU,
+        PIV.NAZEV
+),
+MaxVolumePerRegion AS (
+    SELECT 
+        ID_KRAJE,
+        MAX(CELKOVY_OBJEM) AS MAX_OBJEM
+    FROM 
+        TotalVolumePerBrewery
+    GROUP BY 
+        ID_KRAJE
+)
+SELECT 
+    TV.KRAJ,
+    TV.PIVOVAR,
+    TV.CELKOVY_OBJEM
+FROM 
+    TotalVolumePerBrewery TV
+JOIN 
+    MaxVolumePerRegion MR ON TV.ID_KRAJE = MR.ID_KRAJE AND TV.CELKOVY_OBJEM = MR.MAX_OBJEM;
+
+
