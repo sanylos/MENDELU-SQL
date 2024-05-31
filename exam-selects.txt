@@ -125,4 +125,33 @@ FROM
 JOIN 
     MaxVolumePerRegion MR ON TV.ID_KRAJE = MR.ID_KRAJE AND TV.CELKOVY_OBJEM = MR.MAX_OBJEM;
 
+//Pro jednotlivé světadíly určete nejprodávanější produkt (ten, kterého se celkově prodalo nejvíce).
+WITH ProduktSvetadily AS (
+    SELECT s.NAZEV AS SVETADIL, p.NAZEV AS PRODUKT, SUM(pr.CENA_CELKEM) AS CELKEM_PRODEJ
+    FROM SVETADILY s
+    JOIN ZEME z ON s.ID_SVETADILY = z.ID_SVETADILY
+    JOIN PRODUKTY p ON z.ID_ZEME = p.ID_ZEME
+    JOIN PRODEJE pr ON pr.ID_POBOCKY = (
+        SELECT po.ID_POBOCKY
+        FROM POBOCKY po
+        JOIN ODDELENI o ON po.ID_POBOCKY = o.ID_POBOCKY
+        WHERE o.ID_ODDELENI = (
+            SELECT o2.ID_ODDELENI
+            FROM ODDELENI o2
+            JOIN PRODUKTY p2 ON o2.ID_ODDELENI = p2.ID_ZEME
+            WHERE p2.ID_PRODUKTY = p.ID_PRODUKTY
+        )
+    )
+    GROUP BY s.NAZEV, p.NAZEV
+)
+SELECT sv.SVETADIL, sv.PRODUKT, sv.CELKEM_PRODEJ
+FROM ProduktSvetadily sv
+JOIN (
+    SELECT SVETADIL, MAX(CELKEM_PRODEJ) AS MAX_PRODEJ
+    FROM ProduktSvetadily
+    GROUP BY SVETADIL
+) max_sv
+ON sv.SVETADIL = max_sv.SVETADIL AND sv.CELKEM_PRODEJ = max_sv.MAX_PRODEJ
+ORDER BY sv.SVETADIL;
+
 
