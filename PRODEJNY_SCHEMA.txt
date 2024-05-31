@@ -10,7 +10,7 @@ NADRIZENY                   NUMBER
 ID_PRACOVNI_POZICE          NUMBER       
 DATUM_NASTUPU      NOT NULL DATE 
 
-ODDLENI:
+ODDELENI:
 Name        Null?    Type         
 ----------- -------- ------------ 
 ID_ODDELENI NOT NULL NUMBER       
