@@ -1,0 +1,74 @@
+PIVA:
+Name          Null?    Type         
+------------- -------- ------------ 
+ID_PIVA       NOT NULL NUMBER       
+NAZEV         NOT NULL VARCHAR2(50) 
+ALKOHOL       NOT NULL NUMBER       
+STUPEN                 NUMBER       
+ID_PIVOVARU   NOT NULL NUMBER       
+ID_DRUHU_PIVA NOT NULL NUMBER
+
+PIVOVARY:       
+Name        Null?    Type         
+----------- -------- ------------ 
+ID_PIVOVARU NOT NULL NUMBER       
+NAZEV       NOT NULL VARCHAR2(80) 
+ID_ADRESY   NOT NULL NUMBER
+
+DRUHY_PIVA:       
+Name          Null?    Type         
+------------- -------- ------------ 
+ID_DRUHU_PIVA NOT NULL NUMBER       
+NAZEV         NOT NULL VARCHAR2(50)
+
+ADRESY: 
+Name             Null?    Type          
+---------------- -------- ------------- 
+ID_ADRESY        NOT NULL NUMBER        
+ULICE                     VARCHAR2(100) 
+CISLO_ORIENTACNI          VARCHAR2(10)  
+CISLO_POPISNE    NOT NULL NUMBER        
+PSC              NOT NULL NUMBER
+
+SMEROVACI_CISLA:        
+Name    Null?    Type   
+------- -------- ------ 
+PSC     NOT NULL NUMBER 
+ID_OBCE NOT NULL NUMBER
+
+OBCE: 
+Name     Null?    Type          
+-------- -------- ------------- 
+ID_OBCE  NOT NULL NUMBER        
+NAZEV    NOT NULL VARCHAR2(100) 
+ID_KRAJE NOT NULL NUMBER
+
+KRAJE:        
+Name     Null?    Type         
+-------- -------- ------------ 
+ID_KRAJE NOT NULL NUMBER       
+NAZEV             VARCHAR2(30)
+
+TYPY_OBALU: 
+Name            Null?    Type         
+--------------- -------- ------------ 
+ID_TYPU_OBALU   NOT NULL NUMBER       
+NAZEV           NOT NULL VARCHAR2(50) 
+OBJEM_V_LITRECH NOT NULL NUMBER       
+MATERIAL        NOT NULL VARCHAR2(50)
+
+VYSTAV: 
+Name          Null?    Type         
+------------- -------- ------------ 
+ID_PIVA       NOT NULL NUMBER       
+ID_TYPU_OBALU NOT NULL NUMBER       
+ID_RESTAURACE NOT NULL NUMBER       
+CAS_VYSTAVENI NOT NULL TIMESTAMP(6) 
+POCET_KUSU    NOT NULL NUMBER
+
+RESTAURACE:       
+Name          Null?    Type         
+------------- -------- ------------ 
+ID_RESTAURACE NOT NULL NUMBER       
+NAZEV         NOT NULL VARCHAR2(60) 
+ID_ADRESY     NOT NULL NUMBER 
