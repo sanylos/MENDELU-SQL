@@ -286,4 +286,43 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('procedury: ' || v_total_procedures || ' / ' || v_user_procedures);
 END;
 
+//Pro každého zaměstnance vypište jeho jméno a příjmení, počet nadřízených, příjmení přímého nadřízeného a příjmení nejvyššího nadřízeného, pokud je bez nadřízeného, poslední dva sloupce budou obsahovat hodnotu null
+WITH 
+DirectManager AS (
+    SELECT 
+        Z1.ID_ZAMESTNANCI AS Employee_ID,
+        Z1.JMENO AS Employee_FirstName,
+        Z1.PRIJMENI AS Employee_LastName,
+        Z2.PRIJMENI AS Direct_Manager_LastName,
+        Z1.NADRIZENY AS Direct_Manager_ID
+    FROM 
+        ZAMESTNANCI Z1
+    LEFT JOIN 
+        ZAMESTNANCI Z2 ON Z1.NADRIZENY = Z2.ID_ZAMESTNANCI
+),
+HighestManager AS (
+    SELECT 
+        Z1.ID_ZAMESTNANCI AS Employee_ID,
+        Z3.PRIJMENI AS Highest_Manager_LastName
+    FROM 
+        ZAMESTNANCI Z1
+    LEFT JOIN 
+        ZAMESTNANCI Z2 ON Z1.NADRIZENY = Z2.ID_ZAMESTNANCI
+    LEFT JOIN 
+        ZAMESTNANCI Z3 ON Z2.NADRIZENY = Z3.ID_ZAMESTNANCI
+    WHERE 
+        Z3.NADRIZENY IS NULL OR Z3.ID_ZAMESTNANCI IS NULL
+)
+SELECT 
+    D.Employee_FirstName AS JMENO,
+    D.Employee_LastName AS PRIJMENI,
+    (CASE WHEN D.Direct_Manager_ID IS NULL THEN 0 ELSE 1 END) AS Number_of_Managers,
+    D.Direct_Manager_LastName,
+    H.Highest_Manager_LastName
+FROM 
+    DirectManager D
+LEFT JOIN 
+    HighestManager H ON D.Employee_ID = H.Employee_ID
+ORDER BY 
+    D.Employee_LastName, D.Employee_FirstName;
 
