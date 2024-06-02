@@ -233,4 +233,57 @@ FROM (
 WHERE 
     RN = 1;
 
+//Pomocí PL/SQL vytvořte proceduru, která pro aktuálně přihlášeného uživatele vypíše informace
+o počtu tabulek, pohledů, funkcí, procedur. Vypíše se vždy uživatelské jméno uživatele, který
+proceduru spustí, déle se vypíší počty jednotlivých objektů. Vždy se uvede, ke kolika má přístup
+a kolik z nich je jeho. Příklad výstupu:
+C##STUDENT
+tabulky: 6412 / 205
+pohledy: 7263 / 129
+funkce: 845 / 18
+procedury: 1169/ 64
+CREATE OR REPLACE PROCEDURE user_object_counts AS
+    -- Deklarace proměnných pro uchování počtu objektů
+    v_username VARCHAR2(30);
+    v_total_tables NUMBER;
+    v_user_tables NUMBER;
+    v_total_views NUMBER;
+    v_user_views NUMBER;
+    v_total_functions NUMBER;
+    v_user_functions NUMBER;
+    v_total_procedures NUMBER;
+    v_user_procedures NUMBER;
+
+BEGIN
+    -- Získání uživatelského jména aktuálně přihlášeného uživatele
+    SELECT USER INTO v_username FROM DUAL;
+
+    -- Počítání všech tabulek, ke kterým má uživatel přístup
+    SELECT COUNT(*) INTO v_total_tables FROM ALL_TABLES;
+    -- Počítání tabulek, které uživatel vlastní
+    SELECT COUNT(*) INTO v_user_tables FROM ALL_TABLES WHERE OWNER = v_username;
+
+    -- Počítání všech pohledů, ke kterým má uživatel přístup
+    SELECT COUNT(*) INTO v_total_views FROM ALL_VIEWS;
+    -- Počítání pohledů, které uživatel vlastní
+    SELECT COUNT(*) INTO v_user_views FROM ALL_VIEWS WHERE OWNER = v_username;
+
+    -- Počítání všech funkcí, ke kterým má uživatel přístup
+    SELECT COUNT(*) INTO v_total_functions FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'FUNCTION';
+    -- Počítání funkcí, které uživatel vlastní
+    SELECT COUNT(*) INTO v_user_functions FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'FUNCTION' AND OWNER = v_username;
+
+    -- Počítání všech procedur, ke kterým má uživatel přístup
+    SELECT COUNT(*) INTO v_total_procedures FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'PROCEDURE';
+    -- Počítání procedur, které uživatel vlastní
+    SELECT COUNT(*) INTO v_user_procedures FROM ALL_OBJECTS WHERE OBJECT_TYPE = 'PROCEDURE' AND OWNER = v_username;
+
+    -- Výpis výsledků
+    DBMS_OUTPUT.PUT_LINE(v_username);
+    DBMS_OUTPUT.PUT_LINE('tabulky: ' || v_total_tables || ' / ' || v_user_tables);
+    DBMS_OUTPUT.PUT_LINE('pohledy: ' || v_total_views || ' / ' || v_user_views);
+    DBMS_OUTPUT.PUT_LINE('funkce: ' || v_total_functions || ' / ' || v_user_functions);
+    DBMS_OUTPUT.PUT_LINE('procedury: ' || v_total_procedures || ' / ' || v_user_procedures);
+END;
+
 
