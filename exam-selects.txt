@@ -326,3 +326,39 @@ LEFT JOIN
 ORDER BY 
     D.Employee_LastName, D.Employee_FirstName;
 
+//Pro jednotlivé země určete nejrpodávanější produkt
+WITH SalesByCountry AS (
+    SELECT 
+        ZEME.ID_ZEME,
+        ZEME.NAZEV AS Country_Name,
+        PRODUKTY.ID_PRODUKTY,
+        PRODUKTY.NAZEV AS Product_Name,
+        SUM(PRODEJE.CENA_CELKEM) AS Total_Sales
+    FROM 
+        PRODEJE
+    JOIN 
+        POBOCKY ON PRODEJE.ID_POBOCKY = POBOCKY.ID_POBOCKY
+    JOIN 
+        PRODUKTY ON PRODEJE.ID_PRODEJE = PRODUKTY.ID_PRODUKTY
+    JOIN 
+        ZEME ON PRODUKTY.ID_ZEME = ZEME.ID_ZEME
+    GROUP BY 
+        ZEME.ID_ZEME, ZEME.NAZEV, PRODUKTY.ID_PRODUKTY, PRODUKTY.NAZEV
+),
+RankedSales AS (
+    SELECT 
+        SalesByCountry.*,
+        ROW_NUMBER() OVER (PARTITION BY SalesByCountry.ID_ZEME ORDER BY SalesByCountry.Total_Sales DESC) AS Sales_Rank
+    FROM 
+        SalesByCountry
+)
+SELECT 
+    Country_Name,
+    Product_Name,
+    Total_Sales
+FROM 
+    RankedSales
+WHERE 
+    Sales_Rank = 1
+ORDER BY 
+    Country_Name;
